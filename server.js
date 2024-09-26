@@ -14,7 +14,7 @@ app.listen(PORT, () => {
   bot
     .launch()
     .then(() => {
-      console.log("Bot started now");
+      console.log("Bot started");
     })
     .catch((err) => {
       console.error("Failed to start bot", err);
