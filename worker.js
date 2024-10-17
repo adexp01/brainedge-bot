@@ -4,6 +4,43 @@ import { getRedisConnection } from "./redisProvider.js";
 
 const prisma = new PrismaClient();
 
+async function logErrorToDatabase(
+  model,
+  message,
+  action,
+  args
+) {
+  try {
+    await prisma.log.create({
+      data: {
+        model,
+        message,
+        action,
+        args
+      }
+    });
+  } catch (error) {
+    console.error("Failed to log error to the database:", error);
+  }
+}
+
+prisma.$use(async (params, next) => {
+  try {
+    const result = await next(params);
+    return result;
+  } catch (error) {
+    await logErrorToDatabase(
+      params?.model ?? "",
+      error?.meta?.message ?? "",
+      params?.action ?? "",
+      JSON.stringify(params?.args ?? "")
+    );
+
+    throw error;
+  }
+});
+
+
 const redisConnection = getRedisConnection();
 const worker = new Worker(
   "updateUserTask",

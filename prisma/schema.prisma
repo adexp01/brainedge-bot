@@ -325,3 +325,12 @@ model DailyReward {
   hat       Int?
   order     Int      @unique
 }
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  model     String
+  message   String
+  action    String
+  args      String
+  createdAt DateTime @default(now())
+}
