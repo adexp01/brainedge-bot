@@ -31,7 +31,7 @@ prisma.$use(async (params, next) => {
   } catch (error) {
     await logErrorToDatabase(
       params?.model ?? "",
-      error?.meta?.message ?? "",
+      error?.meta?.message ?? error?.message ?? "",
       params?.action ?? "",
       JSON.stringify(params?.args ?? "")
     );
