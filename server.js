@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log("Starting user clicker data refresh...");
+  
   const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
   console.log(process.env.TELEGRAM_BOT_TOKEN, "token");
   bot
