@@ -51,7 +51,7 @@ const worker = new Worker(
     UPDATE "ClickerUser"
     SET 
       "dailyRewardStreak" = CASE
-        WHEN "dailyRewardStreak" != 21 THEN CASE
+        WHEN "dailyRewardStreak" != 20 THEN CASE
           WHEN "dailyRewardClaimedAt" IS NULL THEN 0
           WHEN "dailyRewardClaimedAt" IS NOT NULL THEN "dailyRewardStreak" + 1
         END
