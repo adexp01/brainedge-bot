@@ -1,4 +1,6 @@
-import prisma from "@/utils/prisma";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const getStats = async () => {
   return await prisma.stats.findMany({
