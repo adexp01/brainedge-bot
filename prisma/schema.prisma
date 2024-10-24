@@ -50,6 +50,21 @@ enum LeaderboardLevel {
   Mastermind
 }
 
+enum GameList {
+  brainSlate
+  lowPop
+  smileQuest
+}
+
+enum TasksList {
+  changeUsername
+}
+
+enum AdminAccess {
+  ADMIN
+  MARKETING
+}
+
 // Models
 
 model Subject {
@@ -234,6 +249,8 @@ model ClickerUser {
   fullTank          Int       @default(2)
   fullTankTimeOut   DateTime?
 
+  isEligableForAirdrop Boolean @default(true)
+
   telegramSubscribed Boolean @default(false)
   telegramTaskStart  Boolean @default(false)
 
@@ -262,24 +279,31 @@ model ClickerUser {
   friends50RewardClaimed  Boolean @default(false)
   friends100RewardClaimed Int     @default(0)
 
+  lastLogin         DateTime?
+  gameRewardClaimed Boolean   @default(false)
+  referralCount     Int       @default(0)
+
   createdAt                 DateTime                    @default(now())
   ClickerUserTaskCompletion ClickerUserTaskCompletion[]
 
   AppUser AppUser?
 
+  @@index([name])
+  @@index([balance])
   @@index([username])
-  @@index([dailyRewardStreak])
-  @@index([dailyRewardClaimedAt])
-  @@index([referralCode])
+  @@index([lastLogin])
+  @@index([weeklyHat])
+  @@index([weeklyBalance])
   @@index([referredByUserId])
 }
 
 model AdminUser {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  email     String      @unique
   password  String
+  access    AdminAccess @default(MARKETING)
 }
 
 model AirdropItems {
@@ -332,5 +356,79 @@ model Log {
   message   String
   action    String
   args      String
+  createdAt DateTime @default(now())
+}
+
+model GameStats {
+  id         String   @id @default(cuid())
+  userId     String?
+  username   String?
+  score      Int?
+  timePlayed Int?     @default(0)
+  game       GameList
+}
+
+model RewardCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  reward    Int
+  redeemed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SpecificTasksCompletion {
+  id          String    @id @default(cuid())
+  reward      Int
+  userId      String
+  task        TasksList
+  started     Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Stats {
+  id String @id @default(cuid())
+
+  bp   Int @default(0)
+  hats Int @default(0)
+
+  claimed10K Int @default(0)
+
+  boostsUsed Int @default(0)
+
+  specificTaskCompletion Json?
+
+  completedDailyTasks                    Int @default(0)
+  claimedDailyReward                     Int @default(0)
+  completedDailyTasksAndClaimDailyReward Int @default(0)
+
+  totalUsers        Int @default(0)
+  dailyActiveUsers  Int @default(0)
+  weeklyActiveUsers Int @default(0)
+
+  inactiveLast3Days  Int @default(0)
+  inactiveLast7Days  Int @default(0)
+  inactiveLast14Days Int @default(0)
+  inactiveLast30Days Int @default(0)
+
+  activeSinceLast3Days  Int @default(0)
+  activeSinceLast7Days  Int @default(0)
+  activeSinceLast14Days Int @default(0)
+  activeSinceLast30Days Int @default(0)
+
+  lowPop     Int @default(0)
+  smileQuest Int @default(0)
+  brainSlate Int @default(0)
+
+  lowPopAndSmileQuest     Int @default(0)
+  lowPopAndBrainSlate     Int @default(0)
+  smileQuestAndBrainSlate Int @default(0)
+
+  allGamesPlayed Int @default(0)
+
   createdAt DateTime @default(now())
 }

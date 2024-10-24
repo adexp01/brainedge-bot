@@ -3,6 +3,7 @@ import express from "express";
 import cron from "node-cron";
 import fetch from "node-fetch";
 import { Telegraf } from "telegraf";
+import { writeMetrics } from "./metrics.js";
 import refreshUserClickerData from "./refreshUsers.js";
 import "./worker.js";
 dotenv.config();
@@ -14,7 +15,7 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log("Starting user clicker data refresh...");
-  
+
   const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
   console.log(process.env.TELEGRAM_BOT_TOKEN, "token");
   bot
@@ -56,6 +57,7 @@ app.listen(PORT, () => {
 
 cron.schedule("0 0 * * *", async () => {
   console.log("Starting user clicker data refresh...");
+  await writeMetrics();
   await refreshUserClickerData();
   console.log("User clicker data refresh completed.");
 });

@@ -1,15 +1,10 @@
+import { Prisma, PrismaClient } from "@prisma/client";
 import { Worker } from "bullmq";
-import { PrismaClient, Prisma } from "@prisma/client";
 import { getRedisConnection } from "./redisProvider.js";
 
 const prisma = new PrismaClient();
 
-async function logErrorToDatabase(
-  model,
-  message,
-  action,
-  args
-) {
+async function logErrorToDatabase(model, message, action, args) {
   try {
     await prisma.log.create({
       data: {
@@ -40,11 +35,10 @@ prisma.$use(async (params, next) => {
   }
 });
 
-
 const redisConnection = getRedisConnection();
 const worker = new Worker(
   "updateUserTask",
-  async (job) => {
+  async job => {
     const { userIds, offset } = job.data;
     console.log(`Updating ${userIds.length} users...`);
     const result = await prisma.$executeRaw`
@@ -72,7 +66,8 @@ const worker = new Worker(
       "dailyTaskCompletion" = 0,
       "lowPopLimit" = 2,
       "brainSlateLimit" = 2,
-      "smileQuestLimit" = 2
+      "smileQuestLimit" = 2,
+      "gameRewardClaimed" = false
     WHERE "id" IN (${Prisma.join(userIds)})`;
     await redisConnection.set("lastProcessedUserId", offset);
     if (result.length > 0) {
@@ -82,7 +77,7 @@ const worker = new Worker(
   { connection: redisConnection }
 );
 
-worker.on("completed", async (job) => {
+worker.on("completed", async job => {
   console.log(`Job ${job.id} has been completed successfully!`);
   await job.remove();
 });
